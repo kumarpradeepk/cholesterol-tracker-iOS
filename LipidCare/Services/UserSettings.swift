@@ -3,40 +3,70 @@ import Observation
 
 /// App-wide user profile & preferences, persisted in UserDefaults and
 /// observable by every view. Mirrors the Android DataStore preferences.
+///
+/// Properties are computed straight over UserDefaults with explicit
+/// `access`/`withMutation` calls so SwiftUI observation works — the
+/// `@Observable` macro cannot synthesize accessors for stored properties
+/// that carry `didSet` observers.
 @Observable
 final class UserSettings {
     static let shared = UserSettings()
     private let defaults = UserDefaults.standard
 
-    var onboardingDone: Bool { didSet { defaults.set(onboardingDone, forKey: "onboardingDone") } }
-    var name: String { didSet { defaults.set(name, forKey: "name") } }
-    var sexRaw: String { didSet { defaults.set(sexRaw, forKey: "sex") } }
-    var birthYear: Int { didSet { defaults.set(birthYear, forKey: "birthYear") } } // 0 = unset
-    var unitRaw: String { didSet { defaults.set(unitRaw, forKey: "unitSystem") } }
-    var themeRaw: String { didSet { defaults.set(themeRaw, forKey: "themeMode") } }
-    var riskFactorsRaw: [String] { didSet { defaults.set(riskFactorsRaw, forKey: "riskFactors") } }
-    var dailyCholesterolBudgetMg: Double { didSet { defaults.set(dailyCholesterolBudgetMg, forKey: "cholBudget") } }
-    var dailySatFatBudgetG: Double { didSet { defaults.set(dailySatFatBudgetG, forKey: "satFatBudget") } }
-    var ldlTargetMgdl: Double { didSet { defaults.set(ldlTargetMgdl, forKey: "ldlTarget") } }
-    var dailyLogReminderEnabled: Bool { didSet { defaults.set(dailyLogReminderEnabled, forKey: "dailyReminderEnabled") } }
-    var dailyLogReminderTime: String { didSet { defaults.set(dailyLogReminderTime, forKey: "dailyReminderTime") } }
+    private init() {}
 
-    private init() {
-        onboardingDone = defaults.bool(forKey: "onboardingDone")
-        name = defaults.string(forKey: "name") ?? ""
-        sexRaw = defaults.string(forKey: "sex") ?? Sex.unspecified.rawValue
-        birthYear = defaults.integer(forKey: "birthYear")
-        unitRaw = defaults.string(forKey: "unitSystem") ?? UnitSystem.mgdl.rawValue
-        themeRaw = defaults.string(forKey: "themeMode") ?? ThemeMode.system.rawValue
-        riskFactorsRaw = defaults.stringArray(forKey: "riskFactors") ?? []
-        dailyCholesterolBudgetMg = defaults.object(forKey: "cholBudget") as? Double ?? 300
-        dailySatFatBudgetG = defaults.object(forKey: "satFatBudget") as? Double ?? 13
-        ldlTargetMgdl = defaults.object(forKey: "ldlTarget") as? Double ?? 100
-        dailyLogReminderEnabled = defaults.bool(forKey: "dailyReminderEnabled")
-        dailyLogReminderTime = defaults.string(forKey: "dailyReminderTime") ?? "20:00"
+    var onboardingDone: Bool {
+        get { access(keyPath: \.onboardingDone); return defaults.bool(forKey: "onboardingDone") }
+        set { withMutation(keyPath: \.onboardingDone) { defaults.set(newValue, forKey: "onboardingDone") } }
+    }
+    var name: String {
+        get { access(keyPath: \.name); return defaults.string(forKey: "name") ?? "" }
+        set { withMutation(keyPath: \.name) { defaults.set(newValue, forKey: "name") } }
+    }
+    var sexRaw: String {
+        get { access(keyPath: \.sexRaw); return defaults.string(forKey: "sex") ?? Sex.unspecified.rawValue }
+        set { withMutation(keyPath: \.sexRaw) { defaults.set(newValue, forKey: "sex") } }
+    }
+    /// 0 = unset
+    var birthYear: Int {
+        get { access(keyPath: \.birthYear); return defaults.integer(forKey: "birthYear") }
+        set { withMutation(keyPath: \.birthYear) { defaults.set(newValue, forKey: "birthYear") } }
+    }
+    var unitRaw: String {
+        get { access(keyPath: \.unitRaw); return defaults.string(forKey: "unitSystem") ?? UnitSystem.mgdl.rawValue }
+        set { withMutation(keyPath: \.unitRaw) { defaults.set(newValue, forKey: "unitSystem") } }
+    }
+    var themeRaw: String {
+        get { access(keyPath: \.themeRaw); return defaults.string(forKey: "themeMode") ?? ThemeMode.system.rawValue }
+        set { withMutation(keyPath: \.themeRaw) { defaults.set(newValue, forKey: "themeMode") } }
+    }
+    var riskFactorsRaw: [String] {
+        get { access(keyPath: \.riskFactorsRaw); return defaults.stringArray(forKey: "riskFactors") ?? [] }
+        set { withMutation(keyPath: \.riskFactorsRaw) { defaults.set(newValue, forKey: "riskFactors") } }
+    }
+    var dailyCholesterolBudgetMg: Double {
+        get { access(keyPath: \.dailyCholesterolBudgetMg); return defaults.object(forKey: "cholBudget") as? Double ?? 300 }
+        set { withMutation(keyPath: \.dailyCholesterolBudgetMg) { defaults.set(newValue, forKey: "cholBudget") } }
+    }
+    var dailySatFatBudgetG: Double {
+        get { access(keyPath: \.dailySatFatBudgetG); return defaults.object(forKey: "satFatBudget") as? Double ?? 13 }
+        set { withMutation(keyPath: \.dailySatFatBudgetG) { defaults.set(newValue, forKey: "satFatBudget") } }
+    }
+    var ldlTargetMgdl: Double {
+        get { access(keyPath: \.ldlTargetMgdl); return defaults.object(forKey: "ldlTarget") as? Double ?? 100 }
+        set { withMutation(keyPath: \.ldlTargetMgdl) { defaults.set(newValue, forKey: "ldlTarget") } }
+    }
+    var dailyLogReminderEnabled: Bool {
+        get { access(keyPath: \.dailyLogReminderEnabled); return defaults.bool(forKey: "dailyReminderEnabled") }
+        set { withMutation(keyPath: \.dailyLogReminderEnabled) { defaults.set(newValue, forKey: "dailyReminderEnabled") } }
+    }
+    var dailyLogReminderTime: String {
+        get { access(keyPath: \.dailyLogReminderTime); return defaults.string(forKey: "dailyReminderTime") ?? "20:00" }
+        set { withMutation(keyPath: \.dailyLogReminderTime) { defaults.set(newValue, forKey: "dailyReminderTime") } }
     }
 
-    // Typed accessors
+    // MARK: Typed accessors
+
     var sex: Sex {
         get { Sex(rawValue: sexRaw) ?? .unspecified }
         set { sexRaw = newValue.rawValue }

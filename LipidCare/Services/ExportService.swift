@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// Builds CSV files and PDF reports for sharing with a doctor.
 enum ExportService {

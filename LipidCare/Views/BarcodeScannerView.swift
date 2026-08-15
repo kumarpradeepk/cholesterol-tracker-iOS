@@ -1,4 +1,5 @@
 import SwiftUI
+import Vision
 import VisionKit
 
 /// Full-screen barcode scanner using VisionKit's DataScanner.
